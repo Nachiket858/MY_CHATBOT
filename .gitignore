@@ -1,0 +1,89 @@
+# ---------------------------------------------
+# Python
+# ---------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.pkl
+*.log
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / cache directories
+*.egg-info/
+.eggs/
+*.egg
+dist/
+build/
+pip-wheel-metadata/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
+
+# Pycharm / JetBrains
+.idea/
+
+# ---------------------------------------------
+# Environment & Secrets (VERY IMPORTANT)
+# ---------------------------------------------
+.env
+.env.*
+*.env
+!example.env
+
+# DO NOT UPLOAD YOUR GEMINI API KEY OR ANY SECRETS
+# Render will store them separately
+
+# ---------------------------------------------
+# OS Specific
+# ---------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux temporary files
+*~
+.cache/
+
+# ---------------------------------------------
+# FastAPI / Uvicorn
+# ---------------------------------------------
+# Logs
+*.log
+logs/
+
+# Static-generated
+staticfiles/
+media/
+
+# ---------------------------------------------
+# Docker (if you add Docker later)
+# ---------------------------------------------
+docker-data/
+docker-compose.override.yml
+
+# ---------------------------------------------
+# Python tooling
+# ---------------------------------------------
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
