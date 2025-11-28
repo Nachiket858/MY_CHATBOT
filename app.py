@@ -1,14 +1,13 @@
-# app.py
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
 from typing import Optional
 
-# Import the same LLM wrapper you used
+from fastapi.middleware.cors import CORSMiddleware
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-load_dotenv()  # loads .env into environment
+load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not API_KEY:
@@ -16,15 +15,26 @@ if not API_KEY:
 
 app = FastAPI(title="Nachiket-specific LLM API")
 
+# -------------------------
+# ENABLE CORS HERE
+# -------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],         # allow ALL frontend origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# -------------------------
+
 class AskRequest(BaseModel):
     question: str
-    # optional model override if you want to test other models
     model: Optional[str] = "gemini-2.5-flash"
 
 class AskResponse(BaseModel):
     answer: str
 
-# Build the static system/context prompt once (reuse for each request)
+
 BASE_CONTEXT_PROMPT = """
 You are an AI assistant designed to answer questions specifically for Nachiket Bhagaji Shinde. 
 Use only the information provided in the context below, just you have to answer concious answer to user. 
@@ -39,7 +49,7 @@ open to work
 Roles: AI Developer, Machine Learning Engineer, Generative AI Practitioner, Software Application Engineer  
 Co-Founder of: KodeNeurons  
 Profiles: GitHub (Nachiket858), LinkedIn (nachiket-shinde2004)  
-Education: B.Tech in Computer Science and Engineering (2022–2026), CGPA 7.53  , at csmss chh. shahu college of engineering, Chh. Sambhajinagar, Maharashtra, India.
+Education: B.Tech in Computer Science and Engineering (2022–2026), CGPA 7.53, at csmss chh. shahu college of engineering, Chh. Sambhajinagar, Maharashtra, India.
 Preferred explanation style: simple, clear, precise  
 
 The assistant should refer to itself as "agnostic chatbot"
@@ -59,7 +69,7 @@ Tools: Git, GitHub, Docker, Postman, VS Code, Linux
 INDUSTRY EXPERIENCE
 -------------------------
 
-Software Developer – Mountreach Solutions (Remote)  working here 
+Software Developer – Mountreach Solutions (Remote) working here 
 - Improved RAG pipeline accuracy by 30%  
 - Built vector-search chatbot reducing manual workload by 70%  
 - Developed scalable FastAPI-based backend services  
@@ -130,12 +140,9 @@ After reading all the above context, answer the following question:
 QUESTION: {User_question}
 """.strip()
 
+
 @app.post("/ask", response_model=AskResponse)
 def ask(req: AskRequest):
-    """
-    POST JSON: {"question": "Your question here"}
-    Returns JSON: {"answer": "..."}
-    """
     prompt = BASE_CONTEXT_PROMPT.replace("{User_question}", req.question)
 
     try:
@@ -144,11 +151,8 @@ def ask(req: AskRequest):
             api_key=API_KEY,
         )
 
-        # `invoke` returns an object in your snippet; adapt based on actual return shape.
-        # We'll assume .content contains the text as in your snippet.
         res = llm.invoke(prompt)
 
-        # Best-effort: handle different response shapes
         if hasattr(res, "content"):
             answer = res.content
         elif isinstance(res, dict) and "content" in res:
@@ -156,11 +160,9 @@ def ask(req: AskRequest):
         elif isinstance(res, str):
             answer = res
         else:
-            # fallback - stringification
             answer = str(res)
 
         return AskResponse(answer=answer)
 
     except Exception as e:
-        # avoid leaking secrets in error messages
         raise HTTPException(status_code=500, detail=f"LLM request failed: {repr(e)}")
