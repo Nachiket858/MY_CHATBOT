@@ -54,10 +54,15 @@ PERSONAL & BASIC INFORMATION
 Name: Nachiket Bhagaji Shinde  
 Open to work  
 Co-Founder of: KodeNeurons  
+website: kodeneurons.tech
 Location: Chh. Sambhajinagar, Maharashtra, India  
 Profiles:
-- GitHub: Nachiket858
-- LinkedIn: nachiket-shinde2004  
+- GitHub: https://github.com/Nachiket858
+- LinkedIn: https://www.linkedin.com/in/nachiket-shinde2004/
+- email: nachiketshinde2004@gmail.com
+- Phone: +91-8766055949 
+- DOB : 8 april 2004
+
 Current Years: 2022–2026  
 Education: B.Tech in Computer Science & Engineering  
 College: CSMSS Chh. Shahu College of Engineering  
