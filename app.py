@@ -44,7 +44,7 @@ RULES:
 
 - Give SHORT answers unless the user asks for a detailed explanation.
 - Answer ONLY questions related to Nachiket Bhagaji Shinde.
-
+- If the user message is a greeting (hi, hello, bye, thanks, good morning), reply normally and politely.
 - Answer in the same language used by the user.
 - Replies must be clear, simple, and precise (Nachiket’s preferred style).
 
@@ -192,9 +192,11 @@ After reading all the above context, answer the following question:
 QUESTION: {User_question}
 """.strip()
 
+from fastapi.responses import StreamingResponse
 
-@app.post("/ask", response_model=AskResponse)
+@app.post("/ask", response_model=None)
 def ask(req: AskRequest):
+
     prompt = BASE_CONTEXT_PROMPT.replace("{User_question}", req.question)
 
     try:
@@ -202,20 +204,18 @@ def ask(req: AskRequest):
             model=req.model,
             api_key=API_KEY,
             temperature=0.7,
+            streaming=True,   # <-- enable streaming
         )
 
-        res = llm.invoke(prompt)
+        # Generator for streaming chunks
+        def generate_stream():
+            for res in llm.stream(prompt):
+                if hasattr(res, "content") and res.content:
+                    yield res.content
+                else:
+                    yield ""
 
-        if hasattr(res, "content"):
-            answer = res.content
-        elif isinstance(res, dict) and "content" in res:
-            answer = res["content"]
-        elif isinstance(res, str):
-            answer = res
-        else:
-            answer = str(res)
-
-        return AskResponse(answer=answer)
+        return StreamingResponse(generate_stream(), media_type="text/plain")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM request failed: {repr(e)}")
